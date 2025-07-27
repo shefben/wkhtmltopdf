@@ -1,0 +1,40 @@
+!IFNDEF MODE
+MODE=release
+!ENDIF
+
+CXX=cl.exe
+OUTDIR=build
+INCLUDES=/I include /I minimal/src
+
+!IF "$(MODE)" == "debug"
+CFLAGS=/nologo /EHsc /std:c++17 /DWIN32 /DWIN64 /D_DEBUG /MDd /Zi /Od /W3 /D_CRT_SECURE_NO_WARNINGS
+LDFLAGS=/NOLOGO /DEBUG /MACHINE:X64
+!ELSE
+CFLAGS=/nologo /EHsc /std:c++17 /DWIN32 /DWIN64 /DNDEBUG /MD /O2 /Oi /GL /W3 /D_CRT_SECURE_NO_WARNINGS
+LDFLAGS=/NOLOGO /MACHINE:X64 /LTCG
+!ENDIF
+
+LIBS=
+
+all: dirs dll exe
+
+dirs:
+@if not exist $(OUTDIR) mkdir $(OUTDIR)
+
+DLL_OBJS=$(OUTDIR)\html2img.obj
+EXE_OBJS=$(OUTDIR)\main.obj $(OUTDIR)\html2img.obj
+
+$(OUTDIR)\html2img.obj: minimal\src\html2img.cc
+$(CXX) $(CFLAGS) /c minimal\src\html2img.cc $(INCLUDES) /Fo$@
+
+$(OUTDIR)\main.obj: minimal\src\main.cpp
+$(CXX) $(CFLAGS) /c minimal\src\main.cpp $(INCLUDES) /Fo$@
+
+dll: $(DLL_OBJS)
+$(CXX) $(LDFLAGS) /LD $(DLL_OBJS) /Fe$(OUTDIR)\html2img.dll $(LIBS)
+
+exe: $(EXE_OBJS)
+$(CXX) $(LDFLAGS) $(EXE_OBJS) /Fe$(OUTDIR)\html2img.exe $(LIBS)
+
+clean:
+rmdir /s /q $(OUTDIR)
