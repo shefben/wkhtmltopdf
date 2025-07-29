@@ -1,0 +1,38 @@
+!IFNDEF CFG
+CFG=Release
+!ENDIF
+!IFNDEF TYPE
+TYPE=dll
+!ENDIF
+
+!IF "$(CFG)" == "Debug"
+CFLAGS=/nologo /MDd /Zi /EHsc /DUNICODE /D_UNICODE /I src\html2img
+LDFLAGS=/DEBUG
+!ELSE
+CFLAGS=/nologo /MD /O2 /EHsc /DUNICODE /D_UNICODE /I src\html2img
+LDFLAGS=
+!ENDIF
+
+OBJS=html2img.obj main.obj
+
+!IF "$(TYPE)" == "dll"
+TARGET=wkhtml2img.dll
+LDFLAGS=$(LDFLAGS) /DLL /DEF:exports.def litehtml.lib skia.lib stb.lib
+!ELSE
+TARGET=wkhtml2img.exe
+LDFLAGS=$(LDFLAGS) litehtml.lib skia.lib stb.lib
+!ENDIF
+
+all: $(TARGET)
+
+html2img.obj: src\html2img\html2img.cpp
+cl $(CFLAGS) /c src\html2img\html2img.cpp
+
+main.obj: src\cli\main.cpp
+cl $(CFLAGS) /c src\cli\main.cpp
+
+$(TARGET): $(OBJS)
+link $(OBJS) $(LDFLAGS) /OUT:$@
+
+clean:
+del /f /q *.obj *.dll *.exe *.lib *.exp 2>NUL

@@ -18,6 +18,7 @@ man1/
 Makefile
 qrc_wkhtmltopdf.cpp
 Makefile.*
+!Makefile.nmake
 *_resource.rc
 *.o
 moc_*.*
